@@ -1120,7 +1120,20 @@ async function persistReportToCloudinary(scanId, scan, lead, narrative, pkg, che
 
 
 
-app.use(express.static("public"));
+// Serve static assets. The HTML documents are served with no-cache so a
+// browser never runs a stale index.html/debug.html against a freshly
+// deployed backend (a repeated source of "the fix isn't live" confusion).
+// CSS/JS still get normal caching — they're revalidated via ETag (304),
+// and we version their URLs below to bust that cache on each deploy.
+app.use(
+  express.static("public", {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith(".html")) {
+        res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      }
+    },
+  })
+);
 
 /** Start a scan; returns immediately with a scanId the frontend polls. */
 app.post("/api/scan", (req, res) => {

@@ -1,6 +1,6 @@
 {
   "name": "smart1-ai-visibility-funnel",
-  "version": "2.6.1",
+  "version": "2.6.2",
   "description": "AI Visibility Scan lead funnel for Smart 1 Marketing — analyzes a prospect's website for AI/GEO search readiness and routes qualified leads to Smart 1 Suite.",
   "main": "server.js",
   "type": "commonjs",

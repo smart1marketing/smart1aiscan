@@ -1166,6 +1166,12 @@ app.post("/api/scan", (req, res) => {
 
 /** Poll for scan status; returns teaser data (never the full findings). */
 app.get("/api/scan/:id/status", (req, res) => {
+  // Scan state changes from running -> complete. Never allow a browser,
+  // proxy, CDN, or embed host to reuse an earlier "running" response.
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.set("Pragma", "no-cache");
+  res.set("Expires", "0");
+
   const entry = scans.get(req.params.id);
   if (!entry) return res.status(404).json({ error: "Scan not found or expired." });
 
@@ -1318,6 +1324,7 @@ app.post("/api/competitor", (req, res) => {
 });
 
 app.get("/api/competitor/:id/status", (req, res) => {
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
   const entry = competitorScans.get(req.params.id);
   if (!entry) return res.status(404).json({ error: "Comparison not found or expired." });
   res.json({

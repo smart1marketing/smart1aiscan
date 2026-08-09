@@ -1,4 +1,8 @@
 (function () {
+  const APP_VERSION = "2.6.3";
+  window.__SMART1_AI_SCAN_VERSION__ = APP_VERSION;
+  console.info(`[Smart 1 AI Scan] frontend v${APP_VERSION} loaded`);
+
   const widget = document.getElementById("widget");
   const steps = widget.querySelectorAll(".step");
 
@@ -28,7 +32,7 @@
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     let res;
     try {
-      res = await fetch(apiBase() + path, { ...opts, signal: controller.signal });
+      res = await fetch(apiBase() + path, { ...opts, signal: controller.signal, cache: "no-store" });
     } catch (e) {
       if (e.name === "AbortError") {
         throw new Error("Request timed out. Retrying…");
@@ -420,9 +424,13 @@
         showError(status.error || "Scan failed. Please try again.");
         return;
       }
+      console.info(`[Smart 1 AI Scan v${APP_VERSION}] scan complete`, status);
       renderTeaser(Object.assign({ scanId }, status));
     };
-    setTimeout(poll, POLL_INTERVAL_MS);
+    // Poll immediately. The audit may already be complete by the time
+    // POST /api/scan returns (cached/existing Insites reports often finish
+    // in only a few seconds), so there is no reason to wait before asking.
+    poll();
   }
 
   // ---- Step 2: teaser + gauge ---------------------------------------------

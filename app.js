@@ -338,6 +338,7 @@
   // "3-4 minutes" expectation set on the entry page. 5 minutes gives a
   // comfortable safety margin so normal latency never trips a false
   // "taking too long" error while a real scan is still finishing.
+  const POLL_INTERVAL_MS = 3000;
   const POLL_MAX_MS = 5 * 60 * 1000;
 
   // Backs up the "keep this tab open" copy with an actual browser prompt —

@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI Visibility Scan — Smart 1 Marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="widget" id="widget">
+
+  <!-- STEP 0 — URL entry -->
+  <section class="step" data-step="entry">
+    <div class="eyebrow">SMART 1 · AI SEARCH DIAGNOSTIC</div>
+    <h1>Would ChatGPT recommend your business?</h1>
+    <p class="lede">Nearly 60% of searches now end without a click. Find out if your site is structured for AI engines to find, trust, and cite.</p>
+    <form id="entryForm" class="entry-form" autocomplete="off">
+      <input
+        type="text"
+        id="urlInput"
+        placeholder="yourbusiness.com"
+        required
+        inputmode="url"
+        autocapitalize="off"
+        autocorrect="off"
+        spellcheck="false"
+      />
+      <button type="submit" class="btn-primary">
+        <span>Scan My Site</span>
+      </button>
+    </form>
+    <div class="url-hint">
+      Just the domain — no need to type "https://" or "www." <span id="urlPreview"></span>
+    </div>
+    <div class="entry-foot">No account needed · Full audit takes 3–4 minutes</div>
+  </section>
+
+  <!-- STEP 1 — scanning -->
+  <section class="step" data-step="scanning" hidden>
+    <div class="radar" aria-hidden="true">
+      <svg viewBox="0 0 200 200" class="radar-svg">
+        <circle cx="100" cy="100" r="90" class="radar-ring"/>
+        <circle cx="100" cy="100" r="62" class="radar-ring"/>
+        <circle cx="100" cy="100" r="34" class="radar-ring"/>
+        <line x1="100" y1="10" x2="100" y2="190" class="radar-cross"/>
+        <line x1="10" y1="100" x2="190" y2="100" class="radar-cross"/>
+        <g class="radar-sweep">
+          <path d="M100 100 L100 10 A90 90 0 0 1 163.6 36.4 Z" />
+        </g>
+      </svg>
+    </div>
+    <h2 id="scanHeading">Scanning <span id="scanDomain">your site</span>…</h2>
+    <div class="scan-elapsed" id="scanElapsed" aria-live="polite"></div>
+    <div class="stay-warning">
+      <strong>Keep this tab open</strong> — the audit runs for a few minutes and closing this page will end it.
+    </div>
+    <ul class="checklist" id="checklist">
+      <li data-key="crawl">Crawling site pages &amp; structure</li>
+      <li data-key="local">Checking local presence &amp; business identity</li>
+      <li data-key="reviews">Scanning reviews &amp; reputation signals</li>
+      <li data-key="speed">Testing speed &amp; mobile experience</li>
+      <li data-key="score">Calculating AI Visibility Score</li>
+    </ul>
+    <p class="scan-note" id="scanNote"></p>
+    <div class="tip-carousel" id="tipCarousel" aria-live="polite">
+      <div class="tip-visual" id="tipVisual"></div>
+      <p class="tip-caption" id="tipCaption"></p>
+    </div>
+  </section>
+
+  <!-- STEP 2 — teaser + gate -->
+  <section class="step" data-step="teaser" hidden>
+    <div class="teaser-grid">
+      <div class="gauge-wrap">
+        <svg viewBox="0 0 200 120" class="gauge">
+          <path d="M10 110 A90 90 0 0 1 190 110" class="gauge-track"/>
+          <path id="gaugeFill" d="M10 110 A90 90 0 0 1 190 110" class="gauge-fill"/>
+          <line id="gaugeNeedle" x1="100" y1="110" x2="100" y2="30" class="gauge-needle"/>
+          <circle cx="100" cy="110" r="6" class="gauge-hub"/>
+        </svg>
+        <div class="gauge-score"><span id="scoreValue">--</span><small>/100</small></div>
+        <div class="gauge-tier" id="tierLabel">—</div>
+      </div>
+      <div class="teaser-copy">
+        <div class="eyebrow">RESULTS FOR <span id="teaserDomain">—</span></div>
+        <p class="teaser-finding" id="teaserFinding">—</p>
+        <p class="teaser-count">Plus <strong id="gapCount">0</strong> more gap(s) we found — see the full breakdown and your recommended fix below.</p>
+        <div class="blur-preview" aria-hidden="true">
+          <div class="blur-line long"></div>
+          <div class="blur-line"></div>
+          <div class="blur-line short"></div>
+        </div>
+      </div>
+    </div>
+
+    <form id="leadForm" class="lead-form">
+      <h3>Unlock your full AI Visibility report</h3>
+      <div class="field-row">
+        <input type="text" name="name" placeholder="Full name" required />
+        <input type="email" name="email" placeholder="Work email" required />
+      </div>
+      <div class="field-row">
+        <input type="tel" name="phone" placeholder="Phone" />
+        <input type="text" name="company" placeholder="Business name" />
+      </div>
+      <div class="field-row">
+        <label class="select-label">
+          How many locations do you operate?
+          <select name="locations">
+            <option value="1">1 location</option>
+            <option value="2">2–3 locations</option>
+            <option value="4">4–5 locations</option>
+            <option value="6">6+ locations</option>
+          </select>
+        </label>
+      </div>
+      <div class="field-row" id="competitorRow" hidden>
+        <input type="text" name="competitorWebsite" placeholder="Biggest competitor's website (optional)" />
+      </div>
+      <label class="checkbox-label">
+        <input type="checkbox" name="wantsEmail" value="1" checked />
+        Also email me a copy of this report
+      </label>
+      <input type="hidden" name="scanId" />
+      <input type="hidden" name="website" />
+      <button type="submit" class="btn-primary btn-block" id="leadSubmitBtn">
+        <span>Get My Full Report</span>
+      </button>
+      <div class="privacy-note" id="trustLine">We'll follow up about your results. No spam.</div>
+    </form>
+  </section>
+
+  <!-- STEP 3 — unlocking -->
+  <section class="step" data-step="unlocking" hidden>
+    <div class="spinner" aria-hidden="true"></div>
+    <p>Building your report…</p>
+  </section>
+
+  <!-- STEP 4 — full report -->
+  <section class="step" data-step="report" hidden>
+    <div class="eyebrow">YOUR AI VISIBILITY REPORT</div>
+    <h2 id="reportHeadline">—</h2>
+    <p class="report-summary" id="reportSummary">—</p>
+
+    <div class="gaps-panel">
+      <h4>Key gaps we found</h4>
+      <ul id="gapsList"></ul>
+    </div>
+
+    <div class="citation-panel">
+      <h4>Would AI cite you?</h4>
+      <p class="citation-headline" id="citationHeadline">—</p>
+      <ul id="citationList"></ul>
+    </div>
+
+    <div class="projection-panel">
+      <h4>Score projection</h4>
+      <div class="projection-track">
+        <div class="projection-fill" id="projectionFill"></div>
+        <div class="projection-marker projection-now" id="projectionNowMarker">
+          <span class="projection-marker-label">Today</span>
+        </div>
+        <div class="projection-marker projection-target" id="projectionTargetMarker">
+          <span class="projection-marker-label">After Smart 1</span>
+        </div>
+      </div>
+      <div class="projection-figures">
+        <div><span class="fig-label">Today</span><span class="fig-value" id="projectionNow">—</span></div>
+        <div><span class="fig-label">Typical after setup</span><span class="fig-value" id="projectionTarget">—</span></div>
+      </div>
+    </div>
+
+    <div class="competitor-panel" id="competitorPanel" hidden>
+      <h4>How you compare</h4>
+      <div class="competitor-compare" id="competitorCompare">
+        <div class="competitor-side">
+          <div class="fig-label">You</div>
+          <div class="fig-value" id="competitorYouScore">—</div>
+        </div>
+        <div class="competitor-vs">vs</div>
+        <div class="competitor-side">
+          <div class="fig-label" id="competitorTheirLabel">Competitor</div>
+          <div class="fig-value" id="competitorTheirScore">—</div>
+        </div>
+      </div>
+      <p class="competitor-note" id="competitorNote"></p>
+    </div>
+    <form class="competitor-form" id="competitorForm" hidden>
+      <input type="text" name="competitorUrl" placeholder="See how you stack up — enter a competitor's site" />
+      <button type="submit" class="btn-secondary">Compare</button>
+    </form>
+
+    <div class="package-panel">
+      <div class="package-name" id="packageName">—</div>
+      <p class="package-reason" id="packageReason">—</p>
+      <div class="package-figures">
+        <div>
+          <div class="fig-label">One-time setup</div>
+          <div class="fig-value" id="packageSetup">—</div>
+        </div>
+        <div>
+          <div class="fig-label">Monthly optimization</div>
+          <div class="fig-value" id="packageMonthly">—</div>
+        </div>
+      </div>
+      <div class="package-effort" id="packageEffort"></div>
+    </div>
+
+    <a class="btn-primary btn-block" id="bookCallBtn" href="#" target="_blank" rel="noopener">
+      <span id="bookCallLabel">Get My Free Action Plan</span>
+    </a>
+    <div class="report-foot" id="crmNote"></div>
+    <a class="sample-report-link" id="viewPdfLink" href="#" target="_blank" rel="noopener" hidden>Download your PDF report</a>
+    <a class="sample-report-link" id="sampleReportLink" href="#" target="_blank" rel="noopener" hidden>See a sample report</a>
+  </section>
+
+  <!-- ERROR -->
+  <section class="step" data-step="error" hidden>
+    <div class="eyebrow error-eyebrow">SCAN INTERRUPTED</div>
+    <p id="errorMessage">Something went wrong.</p>
+    <button class="btn-secondary" id="retryBtn">Try Again</button>
+  </section>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

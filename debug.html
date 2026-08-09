@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Troubleshooting — Smart 1 AI Visibility Scan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy-900: #0c1730; --navy-800: #14213f; --slate-500: #5b6b8c; --slate-300: #a6b0c8;
+    --paper: #f4f6f8; --teal: #2fd1c3; --teal-dim: #1a9b90; --amber: #e2743f; --red: #d94f4f;
+    --line: #dbe1ea;
+    --font-display: "Space Grotesk", sans-serif; --font-body: "Inter", sans-serif; --font-mono: "IBM Plex Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); font-family: var(--font-body); color: var(--navy-900); }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 32px 24px 80px; }
+  h1 { font-family: var(--font-display); font-size: 22px; margin: 0 0 4px; }
+  .sub { color: var(--slate-500); font-size: 13px; margin: 0 0 24px; }
+
+  .gate {
+    background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 24px; max-width: 420px;
+  }
+  .gate input { width: 100%; padding: 11px 14px; border-radius: 8px; border: 1.5px solid var(--line); font-size: 14px; margin: 10px 0; font-family: var(--font-mono); }
+  .gate button, .btn { background: var(--navy-900); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-family: var(--font-display); font-weight: 600; font-size: 13px; cursor: pointer; }
+  .gate button:hover, .btn:hover { background: var(--teal-dim); }
+  .gate .err { color: var(--red); font-size: 12px; margin-top: 8px; }
+
+  .panel { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; margin-bottom: 18px; }
+  .panel h2 { font-family: var(--font-display); font-size: 14px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--slate-500); margin: 0 0 14px; }
+
+  .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .status-card { border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+  .status-card .label { font-family: var(--font-mono); font-size: 11px; color: var(--slate-500); margin-bottom: 4px; }
+  .status-card .val { font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .dot.on { background: var(--teal); }
+  .dot.off { background: var(--slate-300); }
+
+  .row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .row input[type=text] { flex: 1; min-width: 200px; padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--line); font-family: var(--font-mono); font-size: 13px; }
+  .pill-toggle { display: flex; gap: 6px; }
+  .pill { padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); font-size: 12px; font-family: var(--font-mono); cursor: pointer; background: #fff; color: var(--slate-500); }
+  .pill.active { background: var(--navy-900); color: #fff; border-color: var(--navy-900); }
+  .pill.active[data-level=error] { background: var(--red); border-color: var(--red); }
+  .pill.active[data-level=warn] { background: var(--amber); border-color: var(--amber); }
+
+  .log { font-family: var(--font-mono); font-size: 12px; max-height: 480px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; }
+  .log-row { display: grid; grid-template-columns: 150px 60px 140px 1fr; gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--line); align-items: start; }
+  .log-row:last-child { border-bottom: none; }
+  .log-row.error { background: #fdf1f1; }
+  .log-row.warn { background: #fdf6ec; }
+  .log-ts { color: var(--slate-500); }
+  .log-level { text-transform: uppercase; font-weight: 600; }
+  .log-level.error { color: var(--red); }
+  .log-level.warn { color: var(--amber); }
+  .log-level.info { color: var(--teal-dim); }
+  .log-type { color: var(--slate-500); }
+  .log-empty { padding: 24px; text-align: center; color: var(--slate-500); }
+
+  table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 12px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  th { color: var(--slate-500); font-weight: 500; text-transform: uppercase; font-size: 10px; letter-spacing: 0.04em; }
+  .badge { padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  .badge.complete { background: #e6fbf8; color: var(--teal-dim); }
+  .badge.running { background: #fdf6ec; color: var(--amber); }
+  .badge.error { background: #fdf1f1; color: var(--red); }
+
+  .test-output { font-family: var(--font-mono); font-size: 12px; white-space: pre-wrap; background: var(--navy-900); color: #dfe6f5; border-radius: 8px; padding: 14px; max-height: 300px; overflow-y: auto; margin-top: 10px; }
+  .muted { color: var(--slate-500); font-size: 12px; }
+  .auto-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--slate-500); margin-left: auto; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Troubleshooting Panel</h1>
+  <p class="sub">Smart 1 AI Visibility Scan — internal diagnostics. Not part of the public funnel.</p>
+
+  <div id="gate" class="gate">
+    <div style="font-family: var(--font-mono); font-size:12px; color:var(--slate-500);">DEBUG TOKEN</div>
+    <input type="text" id="tokenInput" placeholder="Paste your DEBUG_TOKEN" />
+    <button id="connectBtn">Connect</button>
+    <div class="err" id="gateErr"></div>
+  </div>
+
+  <div id="dashboard" hidden>
+
+    <div class="panel">
+      <h2>System Status</h2>
+      <div class="status-grid" id="statusGrid"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Run a Test Scan</h2>
+      <p class="muted" id="cacheStatus" style="margin-top:0;"></p>
+      <div class="row">
+        <input type="text" id="testUrlInput" placeholder="yourbusiness.com" value="example.com" />
+        <button class="btn" id="runTestBtn">Run Scan</button>
+        <span class="muted" id="testElapsed"></span>
+      </div>
+      <div class="test-output" id="testOutput">Enter a URL and click Run Scan — this calls the same public /api/scan endpoint the widget uses, and shows every raw response as it happens. Watch the activity log for a "cache_hit" (no credit spent) vs "insites_start" (fresh credit).</div>
+    </div>
+
+    <div class="panel">
+      <h2>In-Flight Scans</h2>
+      <div id="scansTableWrap"><p class="muted">No active scans.</p></div>
+      <h2 style="margin-top:20px;">In-Flight Competitor Comparisons</h2>
+      <div id="competitorTableWrap"><p class="muted">No active comparisons.</p></div>
+    </div>
+
+    <div class="panel">
+      <div class="row">
+        <h2 style="margin:0;">Activity Log</h2>
+        <div class="pill-toggle" id="levelToggle">
+          <div class="pill active" data-level="all">All</div>
+          <div class="pill" data-level="error">Error</div>
+          <div class="pill" data-level="warn">Warn</div>
+          <div class="pill" data-level="info">Info</div>
+        </div>
+        <div class="auto-row">
+          <label><input type="checkbox" id="autoRefresh" checked /> Auto-refresh (5s)</label>
+        </div>
+      </div>
+      <div class="log" id="logList"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  let TOKEN = sessionStorage.getItem("s1_debug_token") || "";
+  let levelFilter = "all";
+  let refreshTimer = null;
+
+  const gate = document.getElementById("gate");
+  const dashboard = document.getElementById("dashboard");
+  const gateErr = document.getElementById("gateErr");
+
+  async function api(path) {
+    const sep = path.includes("?") ? "&" : "?";
+    const res = await fetch(`${path}${sep}token=${encodeURIComponent(TOKEN)}`);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    return data;
+  }
+
+  async function connect() {
+    gateErr.textContent = "";
+    try {
+      await api("/api/debug/state");
+      sessionStorage.setItem("s1_debug_token", TOKEN);
+      gate.hidden = true;
+      dashboard.hidden = false;
+      refreshAll();
+      startAutoRefresh();
+    } catch (e) {
+      gateErr.textContent = e.message === "HTTP 404"
+        ? "Debug panel isn't enabled on this deployment (DEBUG_TOKEN not set)."
+        : "Invalid token.";
+    }
+  }
+
+  document.getElementById("connectBtn").addEventListener("click", () => {
+    TOKEN = document.getElementById("tokenInput").value.trim();
+    connect();
+  });
+  document.getElementById("tokenInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("connectBtn").click();
+  });
+
+  if (TOKEN) {
+    document.getElementById("tokenInput").value = TOKEN;
+    connect();
+  }
+
+  // ---- Status grid ----------------------------------------------------
+  async function refreshStatus() {
+    const health = await fetch("/api/health").then((r) => r.json()).catch(() => ({}));
+    const grid = document.getElementById("statusGrid");
+    const items = [
+      ["OpenAI", health.openaiConfigured],
+      ["Insites", health.insitesConfigured],
+      ["Cloudinary", health.cloudinaryConfigured],
+      ["Smart 1 Suite Webhook", health.webhookConfigured],
+      ["Debug Panel", health.debugConfigured],
+    ];
+    grid.innerHTML = items.map(([label, on]) => `
+      <div class="status-card">
+        <div class="label">${label}</div>
+        <div class="val"><span class="dot ${on ? "on" : "off"}"></span>${on ? "Configured" : "Not set"}</div>
+      </div>
+    `).join("");
+  }
+
+  // ---- In-flight scans --------------------------------------------------
+  function fmtAge(ms) {
+    const s = Math.floor(ms / 1000);
+    return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${s % 60}s`;
+  }
+
+  async function refreshState() {
+    const data = await api("/api/debug/state");
+
+    const cacheEl = document.getElementById("cacheStatus");
+    if (cacheEl && data.config) {
+      const ttl = data.config.insitesCacheTtlDays;
+      const cloud = data.config.cloudinaryConfigured;
+      if (!data.config.insitesConfigured) {
+        cacheEl.textContent = "Insites not configured — using the built-in fallback scanner (no credits spent).";
+      } else if (ttl > 0 && cloud) {
+        cacheEl.textContent = `Credit saver ON: repeat scans of the same domain reuse a stored result for up to ${ttl} days.`;
+      } else if (ttl <= 0) {
+        cacheEl.textContent = "Credit saver OFF (INSITES_CACHE_TTL_DAYS=0) — every scan spends a fresh Insites credit.";
+      } else {
+        cacheEl.textContent = "Credit saver OFF — Cloudinary isn't configured, so scans can't be cached.";
+      }
+    }
+
+    const scansWrap = document.getElementById("scansTableWrap");
+    if (!data.scans.length) {
+      scansWrap.innerHTML = '<p class="muted">No active scans.</p>';
+    } else {
+      scansWrap.innerHTML = `<table><thead><tr>
+        <th>Domain</th><th>Engine</th><th>Status</th><th>Score</th><th>Age</th><th>Lead?</th><th>Error</th>
+      </tr></thead><tbody>${data.scans.map((s) => `
+        <tr>
+          <td>${s.domain || s.url || "—"}</td>
+          <td>${s.engine || "—"}</td>
+          <td><span class="badge ${s.status}">${s.status}</span></td>
+          <td>${s.score ?? "—"}</td>
+          <td>${fmtAge(s.ageMs)}</td>
+          <td>${s.leadCaptured ? "yes" : "no"}</td>
+          <td>${s.error || ""}</td>
+        </tr>`).join("")}</tbody></table>`;
+    }
+
+    const compWrap = document.getElementById("competitorTableWrap");
+    if (!data.competitorScans.length) {
+      compWrap.innerHTML = '<p class="muted">No active comparisons.</p>';
+    } else {
+      compWrap.innerHTML = `<table><thead><tr>
+        <th>Domain</th><th>Status</th><th>Score</th><th>Age</th><th>Error</th>
+      </tr></thead><tbody>${data.competitorScans.map((s) => `
+        <tr>
+          <td>${s.domain || "—"}</td>
+          <td><span class="badge ${s.status}">${s.status}</span></td>
+          <td>${s.score ?? "—"}</td>
+          <td>${fmtAge(s.ageMs)}</td>
+          <td>${s.error || ""}</td>
+        </tr>`).join("")}</tbody></table>`;
+    }
+  }
+
+  // ---- Activity log -------------------------------------------------------
+  document.getElementById("levelToggle").addEventListener("click", (e) => {
+    const pill = e.target.closest(".pill");
+    if (!pill) return;
+    document.querySelectorAll("#levelToggle .pill").forEach((p) => p.classList.remove("active"));
+    pill.classList.add("active");
+    levelFilter = pill.dataset.level;
+    refreshLog();
+  });
+
+  async function refreshLog() {
+    const data = await api(`/api/debug/log?limit=150${levelFilter !== "all" ? "&level=" + levelFilter : ""}`);
+    const list = document.getElementById("logList");
+    if (!data.entries.length) {
+      list.innerHTML = '<div class="log-empty">No log entries yet. Run a scan to generate activity.</div>';
+      return;
+    }
+    list.innerHTML = data.entries.map((e) => `
+      <div class="log-row ${e.level}">
+        <div class="log-ts">${new Date(e.ts).toLocaleTimeString()}</div>
+        <div class="log-level ${e.level}">${e.level}</div>
+        <div class="log-type">${e.type}</div>
+        <div>${e.message}</div>
+      </div>
+    `).join("");
+  }
+
+  async function refreshAll() {
+    await Promise.all([refreshStatus(), refreshState(), refreshLog()]);
+  }
+
+  function startAutoRefresh() {
+    stopAutoRefresh();
+    refreshTimer = setInterval(() => {
+      if (document.getElementById("autoRefresh").checked) refreshAll();
+    }, 5000);
+  }
+  function stopAutoRefresh() {
+    if (refreshTimer) clearInterval(refreshTimer);
+  }
+
+  // ---- Run a live test scan ------------------------------------------------
+  document.getElementById("runTestBtn").addEventListener("click", async () => {
+    const url = document.getElementById("testUrlInput").value.trim();
+    if (!url) return;
+    const out = document.getElementById("testOutput");
+    const elapsedEl = document.getElementById("testElapsed");
+    const start = Date.now();
+    out.textContent = `POST /api/scan { url: "${url}" }\n\nWaiting...`;
+
+    let scanId;
+    try {
+      const res = await fetch("/api/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      const started = await res.json();
+      out.textContent += `\n\n→ ${JSON.stringify(started, null, 2)}`;
+      scanId = started.scanId;
+      if (!scanId) return;
+    } catch (e) {
+      out.textContent += `\n\nFAILED: ${e.message}`;
+      return;
+    }
+
+    const poll = async () => {
+      elapsedEl.textContent = `${Math.floor((Date.now() - start) / 1000)}s elapsed`;
+      let status;
+      try {
+        const res = await fetch(`/api/scan/${scanId}/status`);
+        status = await res.json();
+      } catch (e) {
+        out.textContent += `\n\nGET /api/scan/${scanId}/status FAILED: ${e.message}`;
+        return;
+      }
+      out.textContent += `\n\nGET /api/scan/${scanId}/status →\n${JSON.stringify(status, null, 2)}`;
+      if (status.status === "running") {
+        setTimeout(poll, 3000);
+      } else {
+        elapsedEl.textContent += " — done";
+        refreshState();
+        refreshLog();
+      }
+    };
+    setTimeout(poll, 2000);
+  });
+
+})();
+</script>
+</body>
+</html>

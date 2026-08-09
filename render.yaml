@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: smart1-ai-visibility-funnel
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: SMART1_WEBHOOK_URL
+        sync: false
+      - key: SMART1_WEBHOOK_TOKEN
+        sync: false
+      - key: INSITES_API_KEY
+        sync: false
+      - key: CTA_LABEL
+        value: Get My Free Action Plan
+      - key: SAMPLE_REPORT_URL
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: CLOUDINARY_FOLDER
+        value: smart1-ai-visibility-reports
+      - key: INSITES_CACHE_TTL_DAYS
+        value: "30"
+      - key: DEBUG_TOKEN
+        sync: false
+      - key: CALENDAR_URL
+        value: https://smart1marketing.com/book-a-call
